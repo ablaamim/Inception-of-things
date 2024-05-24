@@ -1,8 +1,8 @@
 Vagrant.configure("2") do |config|
   # Define variables for common values
   box_name = "generic/alpine318"
-  memory_size = "2048"
-  cpus_count = "3"
+  memory_size = "1024"
+  cpus_count = "1"
   synced_folder_path = "./confs"
   private_network_ip1 = "192.168.56.110"
   private_network_ip2 = "192.168.56.111"
@@ -25,12 +25,12 @@ Vagrant.configure("2") do |config|
       echo "Debugging message: Provisioning ablaamimS master node..."
       #{k3s_install_command} sh -
       sleep 10
-      sudo chmod 644 #{kube_config_path}
       while [ ! -e #{node_token_path} ]; do
         sleep 2
       done
       sudo cat #{node_token_path}
       sudo cp #{node_token_path} /vagrant/
+      sudo chmod 644 #{kube_config_path}
       sudo cp #{kube_config_path} /vagrant/
       echo "Debugging message: ablaamimS master node provisioning completed."
     SHELL
