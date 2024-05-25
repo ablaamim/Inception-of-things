@@ -1,6 +1,6 @@
 Vagrant.configure("2") do |config|
   # Shared folder for storing the token
-  config.vm.synced_folder "/confs", "/vagrant", type: "virtualbox"
+  config.vm.synced_folder "./confs", "/vagrant", type: "virtualbox"
 
   # Define VM fchananeS
   config.vm.define "fchananeS" do |fchananeS|
