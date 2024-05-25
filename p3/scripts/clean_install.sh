@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e
-
 # Stop and disable Docker
 sudo systemctl stop docker
 sudo systemctl disable docker
