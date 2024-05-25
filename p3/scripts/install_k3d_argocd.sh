@@ -33,8 +33,6 @@ rm kubectl
 # Create a new k3d cluster named "dev-cluster"
 k3d cluster create dev-cluster
 
-# Clean up any existing install.yaml file
-rm install.yaml
 
 # Create Kubernetes namespaces for ArgoCD and the application
 kubectl create namespace argocd

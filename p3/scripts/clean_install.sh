@@ -44,4 +44,3 @@ sudo dnf remove -y podman containers-common || true
 sudo dnf clean all
 
 echo "Docker, k3d, kubectl, and ArgoCD have been successfully removed."
-
