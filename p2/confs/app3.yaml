@@ -1,0 +1,56 @@
+# nginx-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app3-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app3
+  template:
+    metadata:
+      labels:
+        app: app3
+    spec:
+      containers:
+      - name: http-echo
+        image: hashicorp/http-echo
+        ports:
+        - containerPort: 5678
+        env:
+        - name: ECHO_TEXT
+          value: "Hello from app3."
+
+
+---
+# nginx-service.yaml
+apiVersion: v1  
+kind: Service
+metadata:
+  name: app3-service
+spec:
+  selector:
+    app: app3
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 5678
+
+---
+# nginx-ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app3-ingress
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: app3-service
+            port:
+              number: 8080
