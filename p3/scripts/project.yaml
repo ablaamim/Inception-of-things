@@ -1,4 +1,3 @@
-apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
   name: argocdrocks-project
@@ -9,7 +8,7 @@ spec:
   description: Our ArgoCD Project to deploy our app locally
   # Allow manifests to deploy only from Sokube git repositories
   sourceRepos:
-  - "https://github.com/sokube/*"
+  - "https://github.com/ablaamim/Inception-of-things.git"
   # Only permit to deploy applications in the same cluster
   destinations:
   - namespace: dev

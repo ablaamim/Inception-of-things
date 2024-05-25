@@ -35,10 +35,10 @@ kubectl create namespace dev
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 
 # Install ArgoCD CLI
-#VERSION=$(curl --silent "https://api.github.com/repos/argoproj/argo-cd/releases/latest" | grep -Po '"tag_name": "\K.*?(?=")')
-#curl -sSL -o argocd-linux-amd64 "https://github.com/argoproj/argo-cd/releases/download/$VERSION/argocd-linux-amd64"
-#sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
-#rm argocd-linux-amd64
+VERSION=$(curl --silent "https://api.github.com/repos/argoproj/argo-cd/releases/latest" | grep -Po '"tag_name": "\K.*?(?=")')
+curl -sSL -o argocd-linux-amd64 "https://github.com/argoproj/argo-cd/releases/download/$VERSION/argocd-linux-amd64"
+sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
+rm argocd-linux-amd64
 
 # Wait for ArgoCD server to be ready
 echo "Waiting for ArgoCD server to be ready..."
@@ -65,56 +65,21 @@ argocd_password=$(kubectl get secret -n argocd argocd-initial-admin-secret -o js
 # Login to ArgoCD
 argocd login localhost:8080 --username admin --password $argocd_password --insecure
 
-rm project.yaml application.yaml
+argocd app create will --repo 'https://github.com/ablaamim/Inception-of-things.git' --path 'p3/app' --dest-namespace 'dev' --dest-server 'https://kubernetes.default.svc' --grpc-web
 
-cat > project.yaml << EOF
-kind: AppProject
-metadata:
-  name: argocdrocks-project
-  labels:
-    app: argocdrocks
-spec:
-  # Project description
-  description: Our ArgoCD Project to deploy our app locally
-  # Allow manifests to deploy only from Sokube git repositories
-  sourceRepos:
-  - "https://github.com/ablaamim/Inception-of-things.git"
-  # Only permit to deploy applications in the same cluster
-  destinations:
-  - namespace: dev
-    server: https://kubernetes.default.svc
-  # Enables namespace orphaned resource monitoring.
-  orphanedResources:
-    warn: false
-EOF
+argocd app get will --grpc-web
+sleep 5 #Those pauses between argocd calls help prevent connection bugs
 
-kubectl create -n argocd -f project.yaml
+argocd app sync will --grpc-web
+sleep 5
 
-cat > application.yaml << EOF
-apiVersion: networking.k8s.io/v1
-kind: Application
-metadata:
-  labels:
-    app: argocdrocks
-  name: argocdrocks-app
-spec:
-  project: argocdrocks-project
-  source:
-    repoURL: https://github.com/sokube/argocd-rocks.git
-    targetRevision: featurebranch_1
-    path: app
-    directory:
-      recurse: true
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: dev
-  syncPolicy:
-    automated:
-      prune: false
-      selfHeal: true
-EOF
+argocd app set will --sync-policy automated --grpc-web #Once git repo is changed with new push, our running will-app will mirror that.
+sleep 5
 
-kubectl apply -f application.yaml -n argocd
+argocd app set will --auto-prune --allow-empty --grpc-web #If resources are removed in git repo those resources will also be removed inside our running will-app, even if that means the app becomes empty.
+sleep 5
+
+argocd app get will --grpc-web
 
 #kubectl apply -f ingress.yaml -n argocd
 
