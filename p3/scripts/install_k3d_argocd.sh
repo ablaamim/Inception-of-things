@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Exit immediately if a command exits with a non-zero status
-set -e
+#set -e
 
 # Install Docker
 # Add the Docker repository to the dnf package manager
@@ -42,8 +42,7 @@ kubectl create namespace dev
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 
 # Install ArgoCD CLI (command-line interface)
-VERSION=$(curl --silent "https://api.github.com/repos/argoproj/argo-cd/releases/latest" | grep -Po '"tag_name": "\K.*?(?=")')
-curl -sSL -o argocd-linux-amd64 "https://github.com/argoproj/argo-cd/releases/download/$VERSION/argocd-linux-amd64"
+curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
 sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
 rm argocd-linux-amd64
 
@@ -69,11 +68,17 @@ sleep 5
 # Retrieve the initial ArgoCD admin password from the Kubernetes secret
 argocd_password=$(kubectl get secret -n argocd argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
 
+echo $argocd_password
+
 # Login to ArgoCD using the initial admin credentials
 argocd login localhost:8080 --username admin --password $argocd_password --insecure
 
+sleep 5
+
 # Create a new ArgoCD application
 argocd app create will --repo 'https://github.com/ablaamim/Inception-of-things.git' --path 'p3/app' --dest-namespace 'dev' --dest-server 'https://kubernetes.default.svc' --grpc-web
+
+sleep 5
 
 # Retrieve details of the newly created application
 argocd app get will --grpc-web
